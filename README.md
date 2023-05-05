@@ -10,7 +10,6 @@ MarketAlert 是一個自動提醒金融數據與股市開盤狀況的Discord機�
 
 ## 程式架構
 
-- main.py: 主程式，負責啟動機器人與設定相關參數
-- reminder.py: 負責提醒相關功能
-- market_status.py: 負責處理股市開盤狀況
+- main.py: 主程式，負責處理相關金融資訊
+- bot.py: Discord機器人，將處理後的資訊發佈至Discord頻道
 - config.json: 配置檔案，存放Discord機器人的Token等配置信息
