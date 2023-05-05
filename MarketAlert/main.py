@@ -1,8 +1,5 @@
-import pandas
-import numpy
 import datetime
 import os 
-import requests
 import investpy
 
 """ 
@@ -31,21 +28,21 @@ try:
     importances = ['high', 'medium', 'low']
     time_zone = 'GMT +8:00'
     from_date = datetime.datetime.today().strftime('%d/%m/%Y')
-    to_date = (datetime.datetime.today() + datetime.timedelta(days=7)).strftime('%d/%m/%Y')
-    
+    to_date = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+
     # 使用api取得資料
+    print('Running...')
     calendar = investpy.economic_calendar(importances=importances,
                                           time_zone=time_zone,
                                           from_date=from_date, 
                                           to_date=to_date)
-    
+    print('Done...')
     # 資料過濾(過濾沒有重要程度的資料)
     calendar = calendar[calendar['importance'].values != None]
     #calendar = calendar.sort_values('importance') # 排序
     
-    # 存出
+    # # 存出
     path = os.path.join(os.getcwd(), 'data', 'calendar.csv')
     calendar.to_csv(path)
-    
 except Exception as e:
-    print(from_date, 'to', to_date, 'PASS and have error：' ,e)
+    print('ERROR:' ,e)
