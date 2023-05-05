@@ -27,17 +27,16 @@ async def on_ready():
     game = discord.Game('MarketAlert')
     # discord.Status.<狀態>，可以是online,offline,idle,dnd,invisible
     await bot.change_presence(status=discord.Status.online, activity=game)
-
     data = ""
-
     with open('./data/calendar.csv', newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            # 將行添加到列表中
             data += ",".join(row) + "\n"
-        print(data)
-
-    await bot.get_guild(779321275730362379).get_thread(1103885928012988417).send(data)
+            chunks = [data[i:i+2000] for i in range(0, len(data), 2000)]
+        for chunk in chunks:
+            await bot.get_guild(779321275730362379).get_thread(1103885928012988417).send(chunk)
+            
+    # await bot.get_guild(779321275730362379).get_thread(1103885928012988417).send(data)
     # await discord.utils.get(bot.get_all_channels(), name='bot').send('MarketAlert 已上線' )
 
 # Discord 機器人 TOKEN
