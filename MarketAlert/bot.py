@@ -15,7 +15,7 @@ class Restarter:
         print(f"[Info] Restarter is running...")
         self.restart.start()
 
-    # 設定重啟任務在午夜執行（當地時間）
+    # 設定重啟任務在午夜執行（GMT+8）
     @tasks.loop(time=datetime.time(hour=0, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=8))))
     async def restart(self):
         await restart_tasks()
@@ -41,27 +41,23 @@ class Reminder:
             log_msg(f"事件已結束，目前時間為 {datetime.datetime.now()}，預計提醒時間為 {self.target_datetime}，事件時間為 {self.event_datetime}，名稱：{self.event_name}")
             self.stop()
 
-# 設定日誌檔案名稱及層級
-log_filename = f"log-{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
-logging.basicConfig(filename=log_filename, level=logging.INFO)
-
-# 設定 Discord 機器人的 intents
-intents = discord.Intents().all()
-intents.message_content = True
+# 設定日誌檔案名稱、層級以及日誌輸出格式
+logging.basicConfig(filename="logs.txt", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 從 JSON 檔案中讀取設定
 with open("config.json") as f:
     config = json.load(f)
     token = config['discord_bot_token']
-
-bot = discord.Client(intents=intents)
+    
+# 定義 Discord 機器人並設定 intents
+bot = discord.Client(intents=discord.Intents().all())
 
 reminders = []
 
+# 輸出訊息至控制台並記錄到日誌檔案中
 def log_msg(msg):
-    # 輸出訊息至控制台並記錄到日誌檔案中
     print(f"{datetime.datetime.now()} - {msg}")
-    logging.info(f"{datetime.datetime.now()} - {msg}")
+    logging.info(msg)
 
 def run_tasks():
     # 執行子進程執行 main.py 腳本
