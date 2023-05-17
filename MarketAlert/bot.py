@@ -15,10 +15,10 @@ class Restarter:
         print(f"[Info] Restarter is running...")
         self.restart.start()
 
+    # 設定重啟任務在午夜執行（當地時間）
     @tasks.loop(time=datetime.time(hour=0, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=8))))
     async def restart(self):
         await restart_tasks()
-
 
 class Reminder:
     def __init__(self, target_datetime, event_datetime, event_name):
@@ -34,19 +34,22 @@ class Reminder:
     def stop(self):
         self.task.cancel()
 
+    # 每60秒執行一次 remind_me 任務
     @tasks.loop(seconds=60)
     async def remind_me(self):
         if datetime.datetime.now() >= self.target_datetime:
             log_msg(f"事件已結束，目前時間為 {datetime.datetime.now()}，預計提醒時間為 {self.target_datetime}，事件時間為 {self.event_datetime}，名稱：{self.event_name}")
             self.stop()
 
-
+# 設定日誌檔案名稱及層級
 log_filename = f"log-{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 logging.basicConfig(filename=log_filename, level=logging.INFO)
 
+# 設定 Discord 機器人的 intents
 intents = discord.Intents().all()
 intents.message_content = True
 
+# 從 JSON 檔案中讀取設定
 with open("config.json") as f:
     config = json.load(f)
     token = config['discord_bot_token']
@@ -56,13 +59,16 @@ bot = discord.Client(intents=intents)
 reminders = []
 
 def log_msg(msg):
+    # 輸出訊息至控制台並記錄到日誌檔案中
     print(f"{datetime.datetime.now()} - {msg}")
     logging.info(f"{datetime.datetime.now()} - {msg}")
 
 def run_tasks():
+    # 執行子進程執行 main.py 腳本
     process = subprocess.Popen(["python", "main.py"])
     process.wait()
 
+    # 讀取 CSV 檔案中的事件資料並創建 Reminder 物件
     with open('./data/calendar.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
@@ -78,11 +84,13 @@ def run_tasks():
             reminder = Reminder(target_datetime, event_datetime, event_name)
             reminders.append(reminder)
 
+    # 開始所有的提醒
     for reminder in reminders:
         reminder.start()
 
 async def restart_tasks():
-    log_msg(f"Restarting tasks...")
+    log_msg(f"重新啟動任務中...")
+    # 停止所有的提醒
     for reminder in reminders:
         reminder.stop()
     reminders.clear()
