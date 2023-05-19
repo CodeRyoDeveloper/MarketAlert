@@ -1,6 +1,4 @@
-import datetime
-import os 
-import investpy
+import datetime, os, investpy
 
 """ 
 MarketAlert 是 CodeRyo 團隊基於 investpy 開發應用於 Discord 上的金融提醒機器人，
@@ -28,20 +26,17 @@ try:
     importances = ['high', 'medium', 'low']
     time_zone = 'GMT +8:00'
     from_date = datetime.datetime.today().strftime('%d/%m/%Y')
-    to_date = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+    to_date = (datetime.datetime.today() + datetime.timedelta(days=7)).strftime('%d/%m/%Y')
 
     # 使用api取得資料
-    print('Running...')
-    calendar = investpy.economic_calendar(importances=importances,
-                                          time_zone=time_zone,
-                                          from_date=from_date, 
-                                          to_date=to_date)
-    print('Done...')
+    print('[MarketWorm] Running...')
+    calendar = investpy.economic_calendar(importances=importances, time_zone=time_zone, from_date=from_date, to_date=to_date)
+
+    print('[MarketWorm] Done...')
     # 資料過濾(過濾沒有重要程度的資料)
     calendar = calendar[calendar['importance'].values != None]
-    #calendar = calendar.sort_values('importance') # 排序
-    
-    # # 存出
+
+    # 儲存資料
     path = os.path.join(os.getcwd(), 'data', 'calendar.csv')
     calendar.to_csv(path)
 except Exception as e:
