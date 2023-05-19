@@ -73,7 +73,7 @@ class Sendmsg:
             msg_list = ""
 
 def run_tasks():
-    process = subprocess.Popen(["python", "main.py"])
+    process = subprocess.Popen(["python", "MarketWorm.py"])
     process.wait()
 
     with open('./data/calendar.csv', 'r') as csvfile:
