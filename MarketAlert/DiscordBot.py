@@ -1,4 +1,5 @@
 import discord, json, csv, datetime, subprocess, asyncio
+from discord import Embed
 from discord.ext import tasks
 
 print(f"[Info] Running...")
@@ -59,13 +60,19 @@ class Reminder:
     async def remind_me(self):
         global msg_list
         if datetime.datetime.now() >= self.target_datetime:
-            message = f"```現在時間: {datetime.datetime.now()}\n提醒時間: {self.target_datetime}\n公佈時間: {self.event_datetime}\n事件名稱: {self.event_info[7]}\n地區: {self.event_info[4]}\n貨幣: {self.event_info[5]}\n重要度: {self.event_info[6]}\n實際數據: {self.event_info[8]}\n預期數據: {self.event_info[9]}\n上一次數據: {self.event_info[10]}```\n"
-            while len(msg_list) + len(message) > 2000:
-                await asyncio.sleep(1)
-            if len(msg_list) + len(message) <= 2000:
-                msg_list += message
-                print(message)
-                self.stop()
+            embed = Embed(title="MarketAlert", description=f"事件名稱: {self.event_info[7]}")
+            embed.add_field(name="現在時間", value=str(datetime.datetime.now()), inline=False)
+            embed.add_field(name="提醒時間", value=str(self.target_datetime), inline=False)
+            embed.add_field(name="公佈時間", value=str(self.event_datetime), inline=False)
+            embed.add_field(name="地區", value=self.event_info[4], inline=False)
+            embed.add_field(name="貨幣", value=self.event_info[5], inline=False)
+            embed.add_field(name="重要度", value=self.event_info[6], inline=False)
+            embed.add_field(name="公佈數據", value=self.event_info[8], inline=False)
+            embed.add_field(name="預期數據", value=self.event_info[9], inline=False)
+            embed.add_field(name="前次數據", value=self.event_info[10], inline=False)
+        
+            await bot.get_guild(guildid).get_thread(threadid).send(embed=embed)
+            self.stop()
 
 # 訊息發送器
 class Sendmsg:
