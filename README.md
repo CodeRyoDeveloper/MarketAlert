@@ -1,6 +1,8 @@
 # MarketAlert
 
 MarketAlert 是一個自動提醒金融數據與股市開盤狀況的Discord機器人。主要功能包括在有金融數據公佈（例如：CPI）的前10分鐘和前30分鐘提醒，以及每天臺灣時間12:00公佈隔天證券不開盤的國家。
+  
+![MarketAlert](https://media.discordapp.net/attachments/1108937615580876862/1108937615966732289/coderyo.com_money.jpg?width=250&height=250)
 
 ## 主要功能
 
