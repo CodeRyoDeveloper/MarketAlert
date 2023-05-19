@@ -13,6 +13,8 @@ open source LICENSE: MIT License
 with open("config.json") as f:
     config = json.load(f)
     token = config['discord_bot_token']
+    guildid = config['Guild']
+    threadid = config['Thread']
 
 bot = discord.Client(intents=discord.Intents().all())
 reminders = []
@@ -69,7 +71,7 @@ class Sendmsg:
     async def send_msg(self):
         global msg_list
         if len(msg_list) > 0:
-            await bot.get_guild(779321275730362379).get_thread(1103885928012988417).send(msg_list)
+            await bot.get_guild(guildid).get_thread(threadid).send(msg_list)
             msg_list = ""
 
 def run_tasks():
@@ -98,7 +100,7 @@ async def on_ready():
     print('目前登入身份：', bot.user)
     game = discord.Game('MarketAlert')
     await bot.change_presence(status=discord.Status.online, activity=game)
-    await bot.get_guild(779321275730362379).get_thread(1103885928012988417).send("已上線")
+    await bot.get_guild(guildid).get_thread(threadid).send("正在抓取資料中...")
     Restarter()
     Sendmsg()
 
