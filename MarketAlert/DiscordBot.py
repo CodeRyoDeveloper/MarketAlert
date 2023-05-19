@@ -10,6 +10,7 @@ MarketAlert is a financial alert bot developed by the CodeRyo based on investpy 
 open source LICENSE: MIT License
 """
 
+# 讀取配置檔案
 with open("config.json") as f:
     config = json.load(f)
     token = config['discord_bot_token']
@@ -20,6 +21,7 @@ bot = discord.Client(intents=discord.Intents().all())
 reminders = []
 msg_list = ""
 
+# 重啟器
 class Restarter:
     def __init__(self):
         print(f"[Info] Restarter is running...")
@@ -33,11 +35,12 @@ class Restarter:
         reminders.clear()
         run_tasks()
 
+    # 每天午夜重啟任務
     @tasks.loop(time=datetime.time(hour=0, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=8))))
     async def restart_loop(self):
         self.restart()
 
-
+# 提醒器
 class Reminder:
     def __init__(self, target_datetime, event_datetime, event_info):
         self.target_datetime = target_datetime
@@ -51,11 +54,12 @@ class Reminder:
     def stop(self):
         self.task.cancel()
 
+    # 每分鐘檢查是否需要提醒
     @tasks.loop(seconds=60)
     async def remind_me(self):
         global msg_list
         if datetime.datetime.now() >= self.target_datetime:
-            message = f"```Now: {datetime.datetime.now()}\nAlert: {self.target_datetime}\nEvent: {self.event_datetime}\nName: {self.event_info[7]}\nZone: {self.event_info[4]}\nCurrency: {self.event_info[5]}\nImportance: {self.event_info[6]}\nActual: {self.event_info[8]}\nForecast: {self.event_info[9]}\nPrevious: {self.event_info[10]}```\n"
+            message = f"```現在時間: {datetime.datetime.now()}\n提醒時間: {self.target_datetime}\n公佈時間: {self.event_datetime}\n事件名稱: {self.event_info[7]}\n地區: {self.event_info[4]}\n貨幣: {self.event_info[5]}\n重要度: {self.event_info[6]}\n實際數據: {self.event_info[8]}\n預期數據: {self.event_info[9]}\n上一次數據: {self.event_info[10]}```\n"
             while len(msg_list) + len(message) > 2000:
                 await asyncio.sleep(1)
             if len(msg_list) + len(message) <= 2000:
@@ -63,10 +67,12 @@ class Reminder:
                 print(message)
                 self.stop()
 
+# 訊息發送器
 class Sendmsg:
     def __init__(self):
         self.send_msg.start()
 
+    # 每秒檢查是否有訊息需要發送
     @tasks.loop(seconds=1)
     async def send_msg(self):
         global msg_list
@@ -74,11 +80,12 @@ class Sendmsg:
             await bot.get_guild(guildid).get_thread(threadid).send(msg_list)
             msg_list = ""
 
+# 執行任務
 def run_tasks():
     process = subprocess.Popen(["python", "MarketWorm.py"])
     process.wait()
 
-    with open('./data/calendar.csv', 'r') as csvfile:
+    with open('./data/calendar.csv', 'r', encoding='utf8') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
         for row in reader:
@@ -95,6 +102,7 @@ def run_tasks():
     for reminder in reminders:
         reminder.start()
 
+# 當機器人準備就緒時的事件處理函式
 @bot.event
 async def on_ready():
     print('目前登入身份：', bot.user)
